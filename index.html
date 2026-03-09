@@ -1,194 +1,719 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduTracker | Study & Attendance</title>
-    <style>
-        /* --- CSS STYLING --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #f0f2f5; color: #1c1e21; }
-        .hidden { display: none !important; }
-        
-        /* Login Page */
-        #login-page { height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .card { background: white; padding: 30px; border-radius: 12px; shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
-        button { width: 100%; padding: 12px; background: #4e73df; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { background: #2e59d9; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StudySync</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #0d0d18;
+    --bg3: #11111c;
+    --bg4: #13131f;
+    --border: #1a1a2e;
+    --border2: #1e2030;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --text4: #374151;
+    --green: #6ee7b7;
+    --blue: #93c5fd;
+    --red: #ef4444;
+    --yellow: #fcd34d;
+    --purple: #c4b5fd;
+    --orange: #fb923c;
+    --cyan: #67e8f9;
+    --lime: #86efac;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+  input,select,textarea{outline:none;font-family:'DM Sans',sans-serif;}
+  input::placeholder,textarea::placeholder{color:var(--text4);}
+  button{cursor:pointer;}
 
-        /* Dashboard Layout */
-        #main-dash { display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background: #222e3c; color: white; padding: 20px; display: flex; flex-direction: column; }
-        .sidebar h2 { margin-bottom: 30px; color: #3b7ddd; text-align: center; }
-        .nav-item { padding: 15px; cursor: pointer; border-radius: 4px; margin-bottom: 5px; transition: 0.2s; }
-        .nav-item:hover, .active-nav { background: rgba(255,255,255,0.1); border-left: 4px solid #3b7ddd; }
-        
-        .content { flex: 1; padding: 30px; overflow-y: auto; }
-        .section-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+  .inp{background:var(--bg4);border:1.5px solid var(--border2);border-radius:10px;padding:12px 15px;color:var(--text);font-size:14px;transition:border-color 0.2s;width:100%;}
+  .inp:focus{border-color:var(--green);}
+  .btn-g{background:linear-gradient(135deg,#6ee7b7,#3b82f6);color:#0a0a0f;border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;transition:opacity 0.2s,transform 0.15s;}
+  .btn-g:hover{opacity:0.88;transform:translateY(-1px);}
+  .btn-g:disabled{opacity:0.45;cursor:not-allowed;transform:none;}
+  .btn-s{background:var(--bg4);border:1px solid var(--border2);color:var(--text2);padding:10px 18px;border-radius:10px;font-size:13px;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+  .btn-s:hover{border-color:var(--green);color:var(--text);}
+  .card{background:var(--bg3);border:1px solid var(--border);border-radius:18px;padding:22px;transition:border-color 0.2s;}
+  .card:hover{border-color:#2a2a40;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:12px;transition:all 0.2s;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text3);border:none;background:none;width:100%;text-align:left;}
+  .nav-item:hover{background:var(--bg4);color:var(--text2);}
+  .nav-item.active{background:#1a2a3a;color:var(--green);font-weight:600;}
+  .progress-bar{height:8px;border-radius:4px;background:var(--border2);overflow:hidden;}
+  .progress-fill{height:100%;border-radius:4px;transition:width 0.5s ease;}
+  .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;}
+  .att-btn{border:1.5px solid;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;transition:all 0.15s;}
+  .tab-sw{display:flex;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:28px;}
+  .tab-b{flex:1;padding:10px;border:none;background:transparent;color:var(--text3);border-radius:9px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;transition:all 0.2s;}
+  .tab-b.active{background:linear-gradient(135deg,#6ee7b7,#3b82f6);color:#0a0a0f;}
+  .topic-chip{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;font-size:12px;margin:3px;font-family:'DM Sans',sans-serif;}
+  .page{display:none;animation:fadeIn 0.3s ease;}
+  .page.active{display:flex;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .spinner{width:15px;height:15px;border:2px solid var(--green);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;}
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+  select option{background:var(--bg4);}
+  .orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;}
 
-        /* Attendance Table */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
-        th { background: #f8f9fa; }
-        .status-good { color: green; font-weight: bold; }
-        .status-bad { color: red; font-weight: bold; }
+  /* Auth page */
+  #page-auth{min-height:100vh;align-items:center;justify-content:center;padding:20px;flex-direction:column;}
+  .auth-card{position:relative;z-index:1;width:100%;max-width:420px;background:var(--bg3);border:1px solid var(--border);border-radius:24px;padding:44px;box-shadow:0 30px 80px rgba(0,0,0,0.6);}
 
-        /* Timetable Grid */
-        .tt-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 15px; }
-        .day-col { background: #fdfdfd; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
-        .day-label { font-weight: bold; color: #4e73df; margin-bottom: 10px; display: block; }
-    </style>
+  /* Setup page */
+  #page-setup{min-height:100vh;align-items:center;justify-content:center;padding:20px;}
+  .setup-card{width:100%;max-width:700px;background:var(--bg3);border:1px solid var(--border);border-radius:24px;padding:42px;box-shadow:0 30px 80px rgba(0,0,0,0.5);}
+
+  /* Main app */
+  #page-app{min-height:100vh;flex-direction:row;}
+  .sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);padding:24px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0;}
+  .main-content{flex:1;padding:32px;overflow-y:auto;min-width:0;}
+  .tab-content{display:none;animation:fadeIn 0.3s ease;}
+  .tab-content.active{display:block;}
+
+  /* Timetable */
+  .tt-table{border-collapse:separate;border-spacing:4px;min-width:560px;}
+  .tt-table th{font-family:'Syne',sans-serif;}
+  .tt-select{width:100%;border-radius:8px;padding:7px 5px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+  /* Subject chip */
+  .sub-chip{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:8px 14px;font-size:13px;margin:3px;}
+  .sub-chip .rm{background:none;border:none;color:var(--red);font-size:16px;padding:0;line-height:1;}
+
+  .grad-text{background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+  @media(max-width:640px){
+    .sidebar{width:60px;padding:16px 8px;}
+    .sidebar .nav-label,.sidebar .brand-name,.sidebar .user-info{display:none;}
+    .nav-item{justify-content:center;padding:12px;}
+    .main-content{padding:16px;}
+  }
+</style>
 </head>
 <body>
 
-    <div id="login-page">
-        <div class="card">
-            <h2>EduTracker Login</h2>
-            <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Plan your studies & track attendance</p>
-            <input type="text" id="user-name" placeholder="Full Name">
-            <input type="number" id="min-req" placeholder="Min. Attendance Required % (e.g. 75)">
-            <button onclick="doLogin()">Enter Dashboard</button>
-        </div>
+<!-- ORBs -->
+<div class="orb" style="width:500px;height:500px;background:rgba(110,231,183,0.055);top:-150px;right:-100px;"></div>
+<div class="orb" style="width:400px;height:400px;background:rgba(59,130,246,0.055);bottom:-100px;left:-80px;"></div>
+
+<!-- ===== AUTH PAGE ===== -->
+<div id="page-auth" class="page active">
+  <div class="auth-card">
+    <div style="margin-bottom:28px;">
+      <div style="font-size:38px;margin-bottom:8px;">🎓</div>
+      <h1 class="grad-text" style="font-family:'Syne',sans-serif;font-size:30px;font-weight:800;">StudySync</h1>
+      <p style="color:var(--text4);font-size:13px;margin-top:5px;">Your smart academic companion</p>
+    </div>
+    <div class="tab-sw">
+      <button class="tab-b active" onclick="switchAuth('login')">Login</button>
+      <button class="tab-b" onclick="switchAuth('signup')">Sign Up</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:13px;">
+      <input class="inp" id="auth-name" placeholder="Full Name" style="display:none;"/>
+      <input class="inp" id="auth-email" placeholder="Email address"/>
+      <input class="inp" id="auth-password" type="password" placeholder="Password"/>
+      <input class="inp" id="auth-college" placeholder="College Name" style="display:none;"/>
+      <div id="auth-row2" style="display:none;display:grid;grid-template-columns:1fr 1fr;gap:12px;display:none;">
+        <input class="inp" id="auth-branch" placeholder="Branch (CSE/ECE...)"/>
+        <input class="inp" id="auth-semester" placeholder="Semester" type="number"/>
+      </div>
+      <input class="inp" id="auth-minpct" placeholder="Min Attendance % (e.g. 75)" type="number" value="75" style="display:none;"/>
+      <button class="btn-g" id="auth-btn" onclick="doAuth()" style="margin-top:6px;width:100%;">Login →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETUP PAGE ===== -->
+<div id="page-setup" class="page">
+  <div class="setup-card">
+    <div style="margin-bottom:30px;">
+      <div style="display:flex;gap:8px;margin-bottom:18px;">
+        <div id="step-bar-1" style="flex:1;height:4px;border-radius:4px;background:linear-gradient(90deg,#6ee7b7,#3b82f6);transition:background 0.3s;"></div>
+        <div id="step-bar-2" style="flex:1;height:4px;border-radius:4px;background:var(--border2);transition:background 0.3s;"></div>
+      </div>
+      <p id="step-label" style="color:var(--text3);font-size:12px;font-family:'Syne',sans-serif;letter-spacing:2px;text-transform:uppercase;">Step 1 of 2</p>
+      <h2 id="step-title" style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-top:6px;">Add Your Subjects</h2>
     </div>
 
-    <div id="main-dash" class="hidden">
-        <div class="sidebar">
-            <h2>EduTracker</h2>
-            <div class="nav-item active-nav" onclick="showTab('tt-section', this)">📅 Timetable Setup</div>
-            <div class="nav-item" onclick="showTab('att-section', this)">📊 Attendance Guider</div>
-            <div class="nav-item" onclick="showTab('study-section', this)">📚 Study Planner (AI)</div>
-            <button style="margin-top: auto; background: #d9534f;" onclick="location.reload()">Logout</button>
-        </div>
-
-        <div class="content">
-            <div id="tt-section" class="section-card">
-                <h3>Weekly Timetable Setup</h3>
-                <p>Enter your subjects for each day to generate your guide.</p>
-                <div class="tt-grid" id="timetable-inputs">
-                    </div>
-                <button onclick="saveTimetable()" style="margin-top: 20px; width: 200px;">Save Timetable</button>
-            </div>
-
-            <div id="att-section" class="section-card hidden">
-                <h3>Attendance Analysis</h3>
-                <div id="att-stats">
-                    </div>
-                <table id="attendance-table">
-                    <thead>
-                        <tr>
-                            <th>Subject</th>
-                            <th>Classes/Week</th>
-                            <th>Status</th>
-                            <th>Advice</th>
-                        </tr>
-                    </thead>
-                    <tbody id="att-body"></tbody>
-                </table>
-            </div>
-
-            <div id="study-section" class="section-card hidden">
-                <h3>AI Study Planner</h3>
-                <textarea id="syllabus-input" placeholder="Paste your course handouts or syllabus here..." style="width: 100%; height: 150px; padding: 10px; margin-top: 15px; border-radius: 6px; border: 1px solid #ddd;"></textarea>
-                <button onclick="generateNotes()" style="margin-top: 15px; width: 200px; background: #1cc88a;">Generate Short Notes</button>
-                
-                <div id="ai-output" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-left: 5px solid #1cc88a;" class="hidden">
-                    <h4>Analyzed Short Notes:</h4>
-                    <p id="notes-text" style="white-space: pre-line; margin-top: 10px;"></p>
-                </div>
-            </div>
-        </div>
+    <!-- Step 1 -->
+    <div id="step1">
+      <div style="display:flex;gap:10px;margin-bottom:18px;">
+        <input class="inp" id="new-subject" placeholder="Subject name (e.g. Web Technologies)" onkeydown="if(event.key==='Enter')addSubject()"/>
+        <button class="btn-g" onclick="addSubject()">Add</button>
+      </div>
+      <div id="subject-chips" style="display:flex;flex-wrap:wrap;min-height:56px;margin-bottom:26px;">
+        <p id="no-subjects-msg" style="color:var(--text4);font-size:13px;padding:8px 0;">Add at least one subject to continue.</p>
+      </div>
+      <button class="btn-g" id="step1-next" onclick="goStep2()" disabled>Next: Build Timetable →</button>
     </div>
 
-    <script>
-        /* --- JAVASCRIPT LOGIC --- */
-        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        let userProfile = { name: "", minAttedance: 75 };
+    <!-- Step 2 -->
+    <div id="step2" style="display:none;">
+      <p style="color:var(--text3);font-size:13px;margin-bottom:18px;">Assign subjects to each day/time slot.</p>
+      <div style="overflow-x:auto;">
+        <table class="tt-table" id="setup-tt"></table>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:22px;">
+        <button class="btn-s" onclick="goStep1()">← Back</button>
+        <button class="btn-g" onclick="goDashboard()">Go to Dashboard →</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // Generate Timetable UI
-        const ttContainer = document.getElementById('timetable-inputs');
-        days.forEach(day => {
-            ttContainer.innerHTML += `
-                <div class="day-col">
-                    <span class="day-label">${day}</span>
-                    <input type="text" class="tt-input" data-day="${day}" placeholder="Ex: Java, OS, Math">
-                </div>
-            `;
-        });
+<!-- ===== MAIN APP PAGE ===== -->
+<div id="page-app" class="page">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div style="margin-bottom:30px;padding-left:8px;">
+      <h1 class="grad-text brand-name" style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;">StudySync</h1>
+      <p class="user-info" id="sidebar-greeting" style="color:var(--text4);font-size:12px;margin-top:3px;"></p>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:3px;flex:1;">
+      <button class="nav-item active" onclick="switchTab('dashboard',this)"><span>⚡</span><span class="nav-label">Dashboard</span></button>
+      <button class="nav-item" onclick="switchTab('timetable',this)"><span>📅</span><span class="nav-label">Timetable</span></button>
+      <button class="nav-item" onclick="switchTab('attendance',this)"><span>✅</span><span class="nav-label">Attendance</span></button>
+      <button class="nav-item" onclick="switchTab('study',this)"><span>📚</span><span class="nav-label">Study Planner</span></button>
+    </nav>
+    <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:14px;">
+      <button class="nav-item" onclick="logout()" style="color:#ef4444;font-size:13px;"><span>🚪</span><span class="nav-label">Logout</span></button>
+      <p class="user-info" id="sidebar-info" style="color:var(--text4);font-size:11px;padding-left:8px;margin-top:8px;line-height:1.6;"></p>
+    </div>
+  </div>
 
-        function doLogin() {
-            const name = document.getElementById('user-name').value;
-            const min = document.getElementById('min-req').value;
-            if(!name || !min) return alert("Fill all details");
-            
-            userProfile.name = name;
-            userProfile.minAttedance = parseInt(min);
-            
-            document.getElementById('login-page').classList.add('hidden');
-            document.getElementById('main-dash').classList.remove('hidden');
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard" class="tab-content active">
+      <h2 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:4px;">Dashboard</h2>
+      <p style="color:var(--text3);margin-bottom:28px;font-size:14px;">Your academic snapshot</p>
+      <div id="stat-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:30px;"></div>
+      <h3 style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text3);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;">Attendance Overview</h3>
+      <div id="dash-attendance" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <!-- TIMETABLE -->
+    <div id="tab-timetable" class="tab-content">
+      <h2 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:4px;">Timetable</h2>
+      <p style="color:var(--text3);margin-bottom:24px;font-size:14px;">Your weekly class schedule</p>
+      <div style="overflow-x:auto;"><table class="tt-table" id="main-tt"></table></div>
+      <div style="margin-top:26px;">
+        <h3 style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;">Weekly Summary</h3>
+        <div id="weekly-summary" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div id="tab-attendance" class="tab-content">
+      <h2 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:4px;">Attendance Guider</h2>
+      <p id="att-subtitle" style="color:var(--text3);margin-bottom:28px;font-size:14px;"></p>
+      <div id="attendance-cards" style="display:flex;flex-direction:column;gap:16px;"></div>
+    </div>
+
+    <!-- STUDY PLANNER -->
+    <div id="tab-study" class="tab-content">
+      <h2 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:4px;">Study Planner</h2>
+      <p style="color:var(--text3);margin-bottom:8px;font-size:14px;">AI notes generated <strong style="color:var(--green);">strictly from your syllabus topics</strong></p>
+      <div style="background:#0d1a14;border:1px solid #166534;border-radius:12px;padding:12px 16px;margin-bottom:28px;font-size:13px;color:#86efac;display:flex;gap:8px;align-items:flex-start;">
+        <span>📋</span><span>Notes are based <strong>only</strong> on the 5 Course Outcomes from your Web Technologies syllabus. No outside content is added.</span>
+      </div>
+      <div id="study-cards" style="display:flex;flex-direction:column;gap:14px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// =========================================
+// STATE
+// =========================================
+const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat"];
+const TIMES = ["9:00","10:00","11:00","12:00","1:00","2:00","3:00","4:00"];
+const COLORS = ["#6ee7b7","#93c5fd","#fca5a5","#fcd34d","#c4b5fd","#fb923c","#67e8f9","#86efac"];
+
+const SYLLABUS = [
+  { name:"CO1: Internet & HTML Basics", color:"#6ee7b7", topics:["Internet fundamentals","HTTP/HTTPS protocols","Web client-server architecture","Browser basics","Web hosting and domain concepts","HTML document structure","Headings, Paragraphs, Links","CSS syntax","Core selectors","Typography essentials","Color representations","Foundational spacing (padding, margin, border)"] },
+  { name:"CO2: Forms, Semantic & CSS Layouts", color:"#93c5fd", topics:["Forms & form elements","Advanced input attributes & types","Form validation","Semantic tags","Tables","Media tags","Accessibility attributes","Advanced selectors","Flexbox","CSS Grid","Media queries","CSS transitions & animations","CSS custom properties","Bootstrap CSS utilities","SCSS basics","Responsive layouts without frameworks"] },
+  { name:"CO3: JavaScript Essentials", color:"#fcd34d", topics:["Expressions and operators","Conditions & Loops","Functions","Arrow functions","Callback functions","Objects & Object inheritance","Array methods","Number literals: hexadecimal, scientific"] },
+  { name:"CO4: DOM & Interactivity", color:"#c4b5fd", topics:["Event handling","DOM manipulation","Browser storage","Asynchronous programming","Promises"] },
+  { name:"CO5: Advanced Web & Deployment", color:"#fb923c", topics:["Exception handling","ES6 modules","Form validation with JavaScript","Handling user input dynamically","API integration","Page load optimization","Meta tags for SEO","CORS","Deploying the Project"] }
+];
+
+let state = {
+  authMode: "login",
+  user: null,
+  subjects: [],
+  timetable: {}, // key: "Day-Time" => subjectName
+  attendance: {}, // key: subjectName => {attended, conducted}
+  studyNotes: {}, // key: coName => text
+  loadingNotes: {}, // key: coName => bool
+  expandedTopics: {}, // key: coName => bool
+  setupStep: 1,
+  activeTab: "dashboard"
+};
+
+function subjectColor(sub) {
+  const i = state.subjects.indexOf(sub);
+  return COLORS[i % COLORS.length] || "#6ee7b7";
+}
+
+// =========================================
+// PAGE NAVIGATION
+// =========================================
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById("page-"+id).classList.add("active");
+}
+
+// =========================================
+// AUTH
+// =========================================
+function switchAuth(mode) {
+  state.authMode = mode;
+  document.querySelectorAll(".tab-b").forEach((b,i) => b.classList.toggle("active", (i===0&&mode==="login")||(i===1&&mode==="signup")));
+  const signup = mode === "signup";
+  document.getElementById("auth-name").style.display = signup ? "block" : "none";
+  document.getElementById("auth-college").style.display = signup ? "block" : "none";
+  document.getElementById("auth-row2").style.display = signup ? "grid" : "none";
+  document.getElementById("auth-minpct").style.display = signup ? "block" : "none";
+  document.getElementById("auth-btn").textContent = signup ? "Create Account →" : "Login →";
+}
+
+function doAuth() {
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value.trim();
+  if (!email || !password) return;
+  state.user = {
+    name: document.getElementById("auth-name").value.trim() || "Student",
+    email,
+    college: document.getElementById("auth-college").value.trim(),
+    branch: document.getElementById("auth-branch").value.trim(),
+    semester: document.getElementById("auth-semester").value.trim(),
+    minPct: parseFloat(document.getElementById("auth-minpct").value) || 75
+  };
+  state.setupStep = 1;
+  showPage("setup");
+  renderSetupStep();
+}
+
+// =========================================
+// SETUP
+// =========================================
+function renderSetupStep() {
+  const s = state.setupStep;
+  document.getElementById("step-label").textContent = `Step ${s} of 2`;
+  document.getElementById("step-title").textContent = s===1 ? "Add Your Subjects" : "Build Your Timetable";
+  document.getElementById("step-bar-2").style.background = s===2 ? "linear-gradient(90deg,#6ee7b7,#3b82f6)" : "var(--border2)";
+  document.getElementById("step1").style.display = s===1 ? "block" : "none";
+  document.getElementById("step2").style.display = s===2 ? "block" : "none";
+  if (s===2) renderSetupTimetable();
+}
+
+function addSubject() {
+  const inp = document.getElementById("new-subject");
+  const val = inp.value.trim();
+  if (!val || state.subjects.includes(val)) return;
+  state.subjects.push(val);
+  inp.value = "";
+  renderSubjectChips();
+}
+
+function removeSubject(sub) {
+  state.subjects = state.subjects.filter(s => s !== sub);
+  renderSubjectChips();
+}
+
+function renderSubjectChips() {
+  const container = document.getElementById("subject-chips");
+  const msg = document.getElementById("no-subjects-msg");
+  container.innerHTML = "";
+  if (state.subjects.length === 0) {
+    container.appendChild(msg || (() => { const p=document.createElement("p"); p.id="no-subjects-msg"; p.style.cssText="color:var(--text4);font-size:13px;padding:8px 0;"; p.textContent="Add at least one subject to continue."; return p; })());
+  } else {
+    state.subjects.forEach(sub => {
+      const c = subjectColor(sub);
+      const chip = document.createElement("div");
+      chip.className = "sub-chip";
+      chip.style.cssText = `background:${c}18;border:1px solid ${c}44;color:${c};`;
+      chip.innerHTML = `${sub} <button class="rm" onclick="removeSubject('${sub.replace(/'/g,"\\'")}')">×</button>`;
+      container.appendChild(chip);
+    });
+  }
+  document.getElementById("step1-next").disabled = state.subjects.length === 0;
+}
+
+function goStep2() {
+  if (state.subjects.length === 0) return;
+  state.setupStep = 2;
+  renderSetupStep();
+}
+function goStep1() {
+  state.setupStep = 1;
+  renderSetupStep();
+}
+
+function renderSetupTimetable() {
+  renderTimetableInto(document.getElementById("setup-tt"), true);
+}
+
+function renderTimetableInto(table, isSetup) {
+  table.innerHTML = "";
+  // Header
+  const thead = document.createElement("thead");
+  const hrow = document.createElement("tr");
+  const th0 = document.createElement("th");
+  th0.style.cssText = "color:var(--text4);font-size:11px;padding:6px 10px;letter-spacing:1px;";
+  th0.textContent = "TIME";
+  hrow.appendChild(th0);
+  DAYS.forEach(d => {
+    const th = document.createElement("th");
+    th.style.cssText = "color:var(--text2);font-size:12px;padding:6px 6px;font-weight:700;min-width:88px;";
+    th.textContent = d;
+    hrow.appendChild(th);
+  });
+  thead.appendChild(hrow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  TIMES.forEach(time => {
+    const row = document.createElement("tr");
+    const td0 = document.createElement("td");
+    td0.style.cssText = "color:var(--text3);font-size:11px;padding:3px 10px;white-space:nowrap;";
+    td0.textContent = time;
+    row.appendChild(td0);
+    DAYS.forEach(day => {
+      const td = document.createElement("td");
+      td.style.padding = "2px";
+      const key = `${day}-${time}`;
+      const current = state.timetable[key] || "";
+      const color = current ? subjectColor(current) : null;
+      const sel = document.createElement("select");
+      sel.className = "tt-select";
+      sel.style.cssText = `background:${color?color+"18":"var(--bg2)"};border:1.5px solid ${color?color+"66":"var(--border2)"};color:${color||"var(--text4)"};font-weight:${color?600:400};`;
+      const opt0 = document.createElement("option");
+      opt0.value = ""; opt0.textContent = "—";
+      sel.appendChild(opt0);
+      state.subjects.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s; opt.textContent = s;
+        if (s === current) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener("change", () => {
+        if (sel.value) {
+          state.timetable[key] = sel.value;
+        } else {
+          delete state.timetable[key];
         }
+        // re-style
+        const c = sel.value ? subjectColor(sel.value) : null;
+        sel.style.background = c ? c+"18" : "var(--bg2)";
+        sel.style.borderColor = c ? c+"66" : "var(--border2)";
+        sel.style.color = c || "var(--text4)";
+        sel.style.fontWeight = c ? 600 : 400;
+        if (!isSetup) { renderWeeklySummary(); refreshDashboard(); }
+      });
+      td.appendChild(sel);
+      row.appendChild(td);
+    });
+    tbody.appendChild(row);
+  });
+  table.appendChild(tbody);
+}
 
-        function showTab(sectionId, element) {
-            document.querySelectorAll('.section-card').forEach(s => s.classList.add('hidden'));
-            document.getElementById(sectionId).classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-nav'));
-            element.classList.add('active-nav');
+function goDashboard() {
+  showPage("app");
+  renderSidebar();
+  renderDashboard();
+  renderMainTimetable();
+  renderAttendanceCards();
+  renderStudyCards();
+  switchTab("dashboard", document.querySelector("#page-app .nav-item"));
+}
 
-            if(sectionId === 'att-section') calculateAttendance();
-        }
+// =========================================
+// SIDEBAR
+// =========================================
+function renderSidebar() {
+  const u = state.user;
+  document.getElementById("sidebar-greeting").textContent = `Hi, ${u.name.split(" ")[0]} 👋`;
+  let info = "";
+  if (u.college) info += u.college + "\n";
+  if (u.branch) info += `${u.branch} · Sem ${u.semester}`;
+  document.getElementById("sidebar-info").textContent = info;
+}
 
-        function saveTimetable() {
-            const inputs = document.querySelectorAll('.tt-input');
-            let subjectsRaw = [];
-            inputs.forEach(i => {
-                if(i.value) subjectsRaw.push(...i.value.split(',').map(s => s.trim()));
-            });
+function switchTab(name, btn) {
+  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+  document.getElementById("tab-"+name).classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  state.activeTab = name;
+  if (name === "dashboard") refreshDashboard();
+  if (name === "timetable") renderMainTimetable();
+  if (name === "attendance") renderAttendanceCards();
+}
 
-            const counts = {};
-            subjectsRaw.forEach(s => { counts[s] = (counts[s] || 0) + 1; });
-            localStorage.setItem('subjectCounts', JSON.stringify(counts));
-            alert("Timetable Saved! Check Attendance Guider.");
-        }
+// =========================================
+// DASHBOARD
+// =========================================
+function getStats(sub) {
+  const classesPerWeek = Object.values(state.timetable).filter(v => v === sub).length;
+  const attended = state.attendance[sub]?.attended || 0;
+  const conducted = state.attendance[sub]?.conducted || 0;
+  const pct = conducted > 0 ? ((attended / conducted) * 100).toFixed(1) : 0;
+  const minPct = state.user?.minPct || 75;
+  const needed = Math.ceil((minPct/100*conducted - attended) / (1 - minPct/100));
+  const canSkip = Math.floor((attended - minPct/100*conducted) / (minPct/100));
+  return { classesPerWeek, attended, conducted, pct: parseFloat(pct), needed: Math.max(0,needed), canSkip: Math.max(0,canSkip) };
+}
 
-        function calculateAttendance() {
-            const counts = JSON.parse(localStorage.getItem('subjectCounts') || "{}");
-            const tbody = document.getElementById('att-body');
-            tbody.innerHTML = "";
+function renderDashboard() { refreshDashboard(); }
 
-            if(Object.keys(counts).length === 0) {
-                tbody.innerHTML = "<tr><td colspan='4'>No data. Please fill timetable first.</td></tr>";
-                return;
-            }
+function refreshDashboard() {
+  const min = state.user?.minPct || 75;
+  const safeCount = state.subjects.filter(s => { const st=getStats(s); return st.conducted===0||st.pct>=min; }).length;
+  const statData = [
+    {label:"Subjects", value:state.subjects.length, icon:"📚", color:"#a855f7"},
+    {label:"Classes/Week", value:Object.keys(state.timetable).length, icon:"📅", color:"#3b82f6"},
+    {label:"Min Attendance", value:`${min}%`, icon:"🎯", color:"#6ee7b7"},
+    {label:"Safe Subjects", value:safeCount, icon:"✅", color:"#22c55e"},
+  ];
+  const sc = document.getElementById("stat-cards");
+  sc.innerHTML = "";
+  statData.forEach(s => {
+    const d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = `<div style="font-size:26px;margin-bottom:8px;">${s.icon}</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:${s.color};">${s.value}</div><div style="color:var(--text3);font-size:12px;margin-top:3px;">${s.label}</div>`;
+    sc.appendChild(d);
+  });
 
-            for (let sub in counts) {
-                let classesPerWeek = counts[sub];
-                let totalSemClasses = classesPerWeek * 15; // Assuming 15 week semester
-                let maxAbsents = Math.floor(totalSemClasses * (1 - (userProfile.minAttedance / 100)));
-                
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${sub}</b></td>
-                        <td>${classesPerWeek}</td>
-                        <td class="status-good">On Track</td>
-                        <td>You can safely miss up to <b>${maxAbsents}</b> classes this semester.</td>
-                    </tr>
-                `;
-            }
-        }
+  const da = document.getElementById("dash-attendance");
+  da.innerHTML = "";
+  if (state.subjects.length === 0) {
+    da.innerHTML = `<div class="card" style="color:var(--text4);font-size:14px;">No subjects yet. Complete setup to get started.</div>`;
+    return;
+  }
+  state.subjects.forEach(sub => {
+    const st = getStats(sub);
+    const safe = st.pct >= min || st.conducted === 0;
+    const color = subjectColor(sub);
+    const row = document.createElement("div");
+    row.className = "card";
+    row.style.cssText = "display:flex;align-items:center;gap:14px;";
+    row.innerHTML = `
+      <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${sub}</span>
+          <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:${safe?"#22c55e":"#ef4444"};margin-left:12px;flex-shrink:0;">${st.conducted>0?st.pct+"%":"—"}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(st.pct,100)}%;background:${safe?"linear-gradient(90deg,#22c55e,#6ee7b7)":"linear-gradient(90deg,#ef4444,#f97316)"};"></div></div>
+      </div>
+      <span class="badge" style="background:${safe?"#052e16":"#450a0a"};color:${safe?"#22c55e":"#ef4444"};border:1px solid ${safe?"#166534":"#991b1b"};flex-shrink:0;">${safe?"Safe":"Need "+st.needed}</span>`;
+    da.appendChild(row);
+  });
+}
 
-        function generateNotes() {
-            const input = document.getElementById('syllabus-input').value;
-            if(!input) return alert("Paste syllabus first");
-            
-            const outputDiv = document.getElementById('ai-output');
-            const notesPara = document.getElementById('notes-text');
-            
-            outputDiv.classList.remove('hidden');
-            notesPara.innerText = "Processing with AI...\n\nKey Topics identified:\n1. Core Concepts from provided text\n2. Priority modules for exams\n3. Suggested weekly focus based on your timetable.";
-            
-            // Note: In a real app, you'd call an API here. This mimics the UI behavior.
-        }
-    </script>
+// =========================================
+// TIMETABLE
+// =========================================
+function renderMainTimetable() {
+  renderTimetableInto(document.getElementById("main-tt"), false);
+  renderWeeklySummary();
+}
+
+function renderWeeklySummary() {
+  const ws = document.getElementById("weekly-summary");
+  ws.innerHTML = "";
+  state.subjects.forEach(s => {
+    const count = Object.values(state.timetable).filter(v => v === s).length;
+    const c = subjectColor(s);
+    const chip = document.createElement("div");
+    chip.style.cssText = `background:${c}18;border:1px solid ${c}44;border-radius:10px;padding:10px 16px;font-size:13px;`;
+    chip.innerHTML = `<span style="color:${c};font-weight:700;">${s}</span> <span style="color:var(--text3);margin-left:8px;">${count} class${count!==1?"es":""}/week</span>`;
+    ws.appendChild(chip);
+  });
+}
+
+// =========================================
+// ATTENDANCE
+// =========================================
+function renderAttendanceCards() {
+  const min = state.user?.minPct || 75;
+  document.getElementById("att-subtitle").textContent = `Track every class and stay above ${min}%`;
+  const container = document.getElementById("attendance-cards");
+  container.innerHTML = "";
+
+  if (state.subjects.length === 0) {
+    container.innerHTML = `<div class="card" style="color:var(--text4);">Add subjects first to track attendance.</div>`;
+    return;
+  }
+
+  state.subjects.forEach(sub => {
+    renderAttendanceCard(sub, container);
+  });
+}
+
+function renderAttendanceCard(sub, container) {
+  const min = state.user?.minPct || 75;
+  const st = getStats(sub);
+  const safe = st.conducted === 0 || st.pct >= min;
+  const color = subjectColor(sub);
+  const id = "att-card-"+sub.replace(/\s+/g,"-");
+
+  let existing = document.getElementById(id);
+  const card = document.createElement("div");
+  card.className = "card";
+  card.id = id;
+  card.style.borderColor = color+"33";
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:11px;height:11px;border-radius:50%;background:${color};"></div>
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;">${sub}</h3>
+        <span class="badge" style="background:${safe?"#052e16":"#450a0a"};color:${safe?"#22c55e":"#ef4444"};border:1px solid ${safe?"#166534":"#991b1b"};">${st.conducted===0?"No data":safe?"✓ Safe":"⚠ Low"}</span>
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:${st.conducted===0?"var(--text4)":safe?"#22c55e":"#ef4444"};">${st.conducted>0?st.pct+"%":"—"}</div>
+    </div>
+    <div class="progress-bar" style="margin-bottom:14px;">
+      <div class="progress-fill" style="width:${Math.min(st.pct,100)}%;background:${safe?`linear-gradient(90deg,${color},#6ee7b7)`:"linear-gradient(90deg,#ef4444,#f97316)"};"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:14px;">
+      ${[
+        {l:"Conducted",v:st.conducted},
+        {l:"Attended",v:st.attended},
+        {l:"Per Week",v:st.classesPerWeek},
+        st.conducted>0&&!safe?{l:"Must Attend",v:st.needed}:{l:"Can Skip",v:st.canSkip}
+      ].map(item=>`<div style="background:var(--bg2);border-radius:9px;padding:10px 12px;text-align:center;"><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">${item.v}</div><div style="color:var(--text3);font-size:11px;margin-top:2px;">${item.l}</div></div>`).join("")}
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <span style="color:var(--text3);font-size:13px;">Mark:</span>
+      <button class="att-btn" style="border-color:#22c55e55;color:#22c55e;background:#052e16;" onclick="markAttendance('${sub.replace(/'/g,"\\'")}',true)">✓ Present</button>
+      <button class="att-btn" style="border-color:#ef444455;color:#ef4444;background:#450a0a;" onclick="markAttendance('${sub.replace(/'/g,"\\'")}',false)">✗ Absent</button>
+      ${st.conducted>0?`<button class="btn-s" style="font-size:12px;" onclick="undoAttendance('${sub.replace(/'/g,"\\'")}')">↩ Undo</button>`:""}
+    </div>
+    ${st.conducted>0&&!safe?`<div style="margin-top:12px;background:#2d1010;border:1px solid #7f1d1d;border-radius:10px;padding:11px 15px;font-size:13px;color:#fca5a5;">⚠️ Attend next <strong>${st.needed}</strong> class${st.needed!==1?"es":""} to reach ${min}%</div>`:""}
+    ${st.conducted>0&&safe&&st.canSkip>0?`<div style="margin-top:12px;background:#052e16;border:1px solid #166534;border-radius:10px;padding:11px 15px;font-size:13px;color:#86efac;">✅ You can skip up to <strong>${st.canSkip}</strong> more class${st.canSkip!==1?"es":""} and stay above ${min}%</div>`:""}
+  `;
+
+  if (existing) { existing.replaceWith(card); }
+  else { container.appendChild(card); }
+}
+
+function markAttendance(sub, present) {
+  if (!state.attendance[sub]) state.attendance[sub] = {attended:0,conducted:0};
+  state.attendance[sub].conducted++;
+  if (present) state.attendance[sub].attended++;
+  renderAttendanceCard(sub, document.getElementById("attendance-cards"));
+  refreshDashboard();
+}
+
+function undoAttendance(sub) {
+  if (!state.attendance[sub] || state.attendance[sub].conducted === 0) return;
+  state.attendance[sub].conducted = Math.max(0, state.attendance[sub].conducted - 1);
+  state.attendance[sub].attended = Math.max(0, state.attendance[sub].attended - 1);
+  renderAttendanceCard(sub, document.getElementById("attendance-cards"));
+  refreshDashboard();
+}
+
+// =========================================
+// STUDY PLANNER
+// =========================================
+function renderStudyCards() {
+  const container = document.getElementById("study-cards");
+  container.innerHTML = "";
+  SYLLABUS.forEach(co => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.id = "co-card-"+co.name.replace(/\s+/g,"-");
+    card.style.borderColor = co.color+"33";
+    const expanded = state.expandedTopics[co.name];
+    const visibleTopics = expanded ? co.topics : co.topics.slice(0,5);
+    const notes = state.studyNotes[co.name];
+    const loading = state.loadingNotes[co.name];
+    card.innerHTML = `
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:${co.color};flex-shrink:0;"></div>
+            <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:${co.color};">${co.name}</h3>
+            <span style="color:var(--text4);font-size:12px;">${co.topics.length} topics</span>
+          </div>
+          <div>
+            ${visibleTopics.map(t=>`<span class="topic-chip" style="background:${co.color}14;color:${co.color}cc;border:1px solid ${co.color}33;">${t}</span>`).join("")}
+            ${co.topics.length>5?`<button onclick="toggleTopics('${co.name.replace(/'/g,"\\'")}','${co.name.replace(/\s+/g,"-")}')" style="background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;padding:5px 8px;font-family:'DM Sans',sans-serif;">${expanded?`− show less`:`+ ${co.topics.length-5} more`}</button>`:""}
+          </div>
+        </div>
+        <button class="btn-g" style="font-size:13px;padding:9px 16px;flex-shrink:0;opacity:${loading?0.7:1};" onclick="generateNotes('${co.name.replace(/'/g,"\\'")}','${co.name.replace(/\s+/g,"-")}')" ${loading?"disabled":""}>
+          ${loading?"Generating...":notes?"🔄 Regenerate":"✨ Generate Notes"}
+        </button>
+      </div>
+      ${loading?`<div style="display:flex;align-items:center;gap:10px;color:var(--text3);font-size:13px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);"><div class="spinner"></div>Generating notes from syllabus topics only...</div>`:""}
+      ${notes&&!loading?`<div style="margin-top:16px;padding-top:16px;border-top:1px solid ${co.color}22;"><div style="background:var(--bg2);border-radius:12px;padding:18px 20px;font-size:13.5px;line-height:1.8;color:#cbd5e1;white-space:pre-wrap;border-left:3px solid ${co.color};">${notes}</div></div>`:""}
+    `;
+    container.appendChild(card);
+  });
+}
+
+function toggleTopics(coName, cardId) {
+  state.expandedTopics[coName] = !state.expandedTopics[coName];
+  renderStudyCards();
+}
+
+async function generateNotes(coName, cardId) {
+  const co = SYLLABUS.find(c => c.name === coName);
+  if (!co) return;
+  state.loadingNotes[coName] = true;
+  renderStudyCards();
+
+  try {
+    const topicList = co.topics.join(", ");
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1500,
+        messages: [{
+          role: "user",
+          content: `You are a study notes generator. Generate concise exam-ready notes STRICTLY for these syllabus topics only — do not add anything outside this list:\n\nTopics: ${topicList}\n\nFormat your response as:\n- For each topic, give a 1-2 line definition/explanation\n- Add a 💡 tip or key point where relevant\n- End with "⭐ Most Important Topics" listing the top 3 to focus on\n- Use emojis for readability\n- Keep total response under 400 words\n- Do NOT introduce topics not in the list above`
+        }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(c => c.text || "").join("") || "Could not generate notes.";
+    state.studyNotes[coName] = text;
+  } catch (e) {
+    state.studyNotes[coName] = "Failed to generate. Please check your connection and try again.";
+  }
+  state.loadingNotes[coName] = false;
+  renderStudyCards();
+}
+
+// =========================================
+// LOGOUT
+// =========================================
+function logout() {
+  state = { authMode:"login", user:null, subjects:[], timetable:{}, attendance:{}, studyNotes:{}, loadingNotes:{}, expandedTopics:{}, setupStep:1, activeTab:"dashboard" };
+  document.getElementById("auth-email").value = "";
+  document.getElementById("auth-password").value = "";
+  switchAuth("login");
+  showPage("auth");
+}
+
+// =========================================
+// INIT
+// =========================================
+switchAuth("login");
+</script>
 </body>
 </html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduTracker | Study & Attendance</title>
+    <style>
+        /* --- CSS STYLING --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f0f2f5; color: #1c1e21; }
+        .hidden { display: none !important; }
+        
+        /* Login Page */
+        #login-page { height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card { background: white; padding: 30px; border-radius: 12px; shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
+        button { width: 100%; padding: 12px; background: #4e73df; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #2e59d9; }
+
+        /* Dashboard Layout */
+        #main-dash { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #222e3c; color: white; padding: 20px; display: flex; flex-direction: column; }
+        .sidebar h2 { margin-bottom: 30px; color: #3b7ddd; text-align: center; }
+        .nav-item { padding: 15px; cursor: pointer; border-radius: 4px; margin-bottom: 5px; transition: 0.2s; }
+        .nav-item:hover, .active-nav { background: rgba(255,255,255,0.1); border-left: 4px solid #3b7ddd; }
+        
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
+        .section-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+
+        /* Attendance Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
+        th { background: #f8f9fa; }
+        .status-good { color: green; font-weight: bold; }
+        .status-bad { color: red; font-weight: bold; }
+
+        /* Timetable Grid */
+        .tt-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 15px; }
+        .day-col { background: #fdfdfd; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .day-label { font-weight: bold; color: #4e73df; margin-bottom: 10px; display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="login-page">
+        <div class="card">
+            <h2>EduTracker Login</h2>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Plan your studies & track attendance</p>
+            <input type="text" id="user-name" placeholder="Full Name">
+            <input type="number" id="min-req" placeholder="Min. Attendance Required % (e.g. 75)">
+            <button onclick="doLogin()">Enter Dashboard</button>
+        </div>
+    </div>
+
+    <div id="main-dash" class="hidden">
+        <div class="sidebar">
+            <h2>EduTracker</h2>
+            <div class="nav-item active-nav" onclick="showTab('tt-section', this)">📅 Timetable Setup</div>
+            <div class="nav-item" onclick="showTab('att-section', this)">📊 Attendance Guider</div>
+            <div class="nav-item" onclick="showTab('study-section', this)">📚 Study Planner (AI)</div>
+            <button style="margin-top: auto; background: #d9534f;" onclick="location.reload()">Logout</button>
+        </div>
+
+        <div class="content">
+            <div id="tt-section" class="section-card">
+                <h3>Weekly Timetable Setup</h3>
+                <p>Enter your subjects for each day to generate your guide.</p>
+                <div class="tt-grid" id="timetable-inputs">
+                    </div>
+                <button onclick="saveTimetable()" style="margin-top: 20px; width: 200px;">Save Timetable</button>
+            </div>
+
+            <div id="att-section" class="section-card hidden">
+                <h3>Attendance Analysis</h3>
+                <div id="att-stats">
+                    </div>
+                <table id="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Classes/Week</th>
+                            <th>Status</th>
+                            <th>Advice</th>
+                        </tr>
+                    </thead>
+                    <tbody id="att-body"></tbody>
+                </table>
+            </div>
+
+            <div id="study-section" class="section-card hidden">
+                <h3>AI Study Planner</h3>
+                <textarea id="syllabus-input" placeholder="Paste your course handouts or syllabus here..." style="width: 100%; height: 150px; padding: 10px; margin-top: 15px; border-radius: 6px; border: 1px solid #ddd;"></textarea>
+                <button onclick="generateNotes()" style="margin-top: 15px; width: 200px; background: #1cc88a;">Generate Short Notes</button>
+                
+                <div id="ai-output" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-left: 5px solid #1cc88a;" class="hidden">
+                    <h4>Analyzed Short Notes:</h4>
+                    <p id="notes-text" style="white-space: pre-line; margin-top: 10px;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- JAVASCRIPT LOGIC --- */
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        let userProfile = { name: "", minAttedance: 75 };
+
+        // Generate Timetable UI
+        const ttContainer = document.getElementById('timetable-inputs');
+        days.forEach(day => {
+            ttContainer.innerHTML += `
+                <div class="day-col">
+                    <span class="day-label">${day}</span>
+                    <input type="text" class="tt-input" data-day="${day}" placeholder="Ex: Java, OS, Math">
+                </div>
+            `;
+        });
+
+        function doLogin() {
+            const name = document.getElementById('user-name').value;
+            const min = document.getElementById('min-req').value;
+            if(!name || !min) return alert("Fill all details");
+            
+            userProfile.name = name;
+            userProfile.minAttedance = parseInt(min);
+            
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('main-dash').classList.remove('hidden');
+        }
+
+        function showTab(sectionId, element) {
+            document.querySelectorAll('.section-card').forEach(s => s.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-nav'));
+            element.classList.add('active-nav');
+
+            if(sectionId === 'att-section') calculateAttendance();
+        }
+
+        function saveTimetable() {
+            const inputs = document.querySelectorAll('.tt-input');
+            let subjectsRaw = [];
+            inputs.forEach(i => {
+                if(i.value) subjectsRaw.push(...i.value.split(',').map(s => s.trim()));
+            });
+
+            const counts = {};
+            subjectsRaw.forEach(s => { counts[s] = (counts[s] || 0) + 1; });
+            localStorage.setItem('subjectCounts', JSON.stringify(counts));
+            alert("Timetable Saved! Check Attendance Guider.");
+        }
+
+        function calculateAttendance() {
+            const counts = JSON.parse(localStorage.getItem('subjectCounts') || "{}");
+            const tbody = document.getElementById('att-body');
+            tbody.innerHTML = "";
+
+            if(Object.keys(counts).length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4'>No data. Please fill timetable first.</td></tr>";
+                return;
+            }
+
+            for (let sub in counts) {
+                let classesPerWeek = counts[sub];
+                let totalSemClasses = classesPerWeek * 15; // Assuming 15 week semester
+                let maxAbsents = Math.floor(totalSemClasses * (1 - (userProfile.minAttedance / 100)));
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${sub}</b></td>
+                        <td>${classesPerWeek}</td>
+                        <td class="status-good">On Track</td>
+                        <td>You can safely miss up to <b>${maxAbsents}</b> classes this semester.</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function generateNotes() {
+            const input = document.getElementById('syllabus-input').value;
+            if(!input) return alert("Paste syllabus first");
+            
+            const outputDiv = document.getElementById('ai-output');
+            const notesPara = document.getElementById('notes-text');
+            
+            outputDiv.classList.remove('hidden');
+            notesPara.innerText = "Processing with AI...\n\nKey Topics identified:\n1. Core Concepts from provided text\n2. Priority modules for exams\n3. Suggested weekly focus based on your timetable.";
+            
+            // Note: In a real app, you'd call an API here. This mimics the UI behavior.
+        }
+    </script>
+</body>
+</html>

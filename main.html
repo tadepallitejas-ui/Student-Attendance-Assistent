@@ -1,0 +1,299 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<title>AcadTrack</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:#f4f6f9;
+}
+
+/* LOGIN */
+
+.login{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.login-box{
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 0 10px gray;
+text-align:center;
+}
+
+.login-box input{
+display:block;
+margin:10px auto;
+padding:10px;
+width:200px;
+}
+
+button{
+padding:10px 15px;
+border:none;
+background:#4CAF50;
+color:white;
+cursor:pointer;
+border-radius:5px;
+}
+
+/* DASHBOARD */
+
+.dashboard{
+display:none;
+}
+
+.sidebar{
+width:200px;
+height:100vh;
+background:#2c3e50;
+color:white;
+position:fixed;
+padding:20px;
+}
+
+.sidebar button{
+display:block;
+margin:15px 0;
+width:100%;
+background:#34495e;
+}
+
+.main{
+margin-left:220px;
+padding:20px;
+}
+
+.section{
+display:none;
+}
+
+/* CARDS */
+
+.subjectCard{
+background:white;
+padding:15px;
+margin:10px 0;
+border-radius:8px;
+box-shadow:0 0 5px gray;
+}
+
+.progress{
+height:10px;
+background:#ddd;
+border-radius:5px;
+margin-top:5px;
+}
+
+.progress-bar{
+height:10px;
+background:#4CAF50;
+border-radius:5px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div class="login" id="loginPage">
+
+<div class="login-box">
+
+<h1>AcadTrack</h1>
+<p>Study Planner & Attendance Guide</p>
+
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+</div>
+
+</div>
+
+
+<!-- DASHBOARD -->
+
+<div class="dashboard" id="dashboard">
+
+<div class="sidebar">
+
+<h2>AcadTrack</h2>
+
+<button onclick="showSection('planner')">Study Planner</button>
+<button onclick="showSection('attendance')">Attendance Guider</button>
+
+</div>
+
+<div class="main">
+
+<!-- STUDY PLANNER -->
+
+<div id="planner" class="section">
+
+<h2>Study Planner</h2>
+
+<input type="text" id="taskInput" placeholder="Enter Study Task">
+<button onclick="addTask()">Add Task</button>
+
+<ul id="taskList"></ul>
+
+</div>
+
+
+<!-- ATTENDANCE GUIDER -->
+
+<div id="attendance" class="section">
+
+<h2>Attendance Guider</h2>
+
+<input type="text" id="subject" placeholder="Subject Name">
+<input type="number" id="totalClasses" placeholder="Total Classes">
+<input type="number" id="attendedClasses" placeholder="Attended Classes">
+
+<button onclick="addSubject()">Add Subject</button>
+
+<div id="subjectList"></div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<script>
+
+/* LOGIN */
+
+function login(){
+
+let user=document.getElementById("username").value;
+let pass=document.getElementById("password").value;
+
+if(user && pass){
+
+document.getElementById("loginPage").style.display="none";
+document.getElementById("dashboard").style.display="block";
+
+showSection("planner");
+
+}else{
+alert("Enter login details");
+}
+
+}
+
+
+/* NAVIGATION */
+
+function showSection(section){
+
+document.querySelectorAll(".section").forEach(sec=>{
+sec.style.display="none";
+});
+
+document.getElementById(section).style.display="block";
+
+}
+
+
+/* STUDY PLANNER */
+
+let tasks=[];
+
+function addTask(){
+
+let task=document.getElementById("taskInput").value;
+
+if(task==="") return;
+
+tasks.push(task);
+
+displayTasks();
+
+}
+
+function displayTasks(){
+
+let list=document.getElementById("taskList");
+
+list.innerHTML="";
+
+tasks.forEach(task=>{
+
+let li=document.createElement("li");
+li.innerText=task;
+
+list.appendChild(li);
+
+});
+
+}
+
+
+/* ATTENDANCE GUIDER */
+
+let subjects=[];
+
+function addSubject(){
+
+let subject=document.getElementById("subject").value;
+let total=document.getElementById("totalClasses").value;
+let attended=document.getElementById("attendedClasses").value;
+
+let percent=((attended/total)*100).toFixed(1);
+
+subjects.push({
+name:subject,
+percent:percent
+});
+
+displaySubjects();
+
+}
+
+function displaySubjects(){
+
+let list=document.getElementById("subjectList");
+
+list.innerHTML="";
+
+subjects.forEach(sub=>{
+
+let div=document.createElement("div");
+
+div.className="subjectCard";
+
+div.innerHTML=`
+<h3>${sub.name}</h3>
+<p>Attendance: ${sub.percent}%</p>
+
+<div class="progress">
+<div class="progress-bar" style="width:${sub.percent}%"></div>
+</div>
+`;
+
+list.appendChild(div);
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
+```
